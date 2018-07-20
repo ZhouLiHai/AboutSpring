@@ -14,10 +14,10 @@
             org.springframework.web.servlet.DispatcherServlet
         </servlet-class>
         <!--可以通过这种方式类制定配置，从而指定servlet.xml的位置，但也可以遵守规则，不必另行配置-->
-        <!--<init-param>-->
-            <!--<param-name>contextConfigLocation</param-name>-->
-            <!--<param-value>classpath:</param-value>-->
-        <!--</init-param>-->
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>/WEB-INF/spring-servlet.xml</param-value>
+        </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
 
