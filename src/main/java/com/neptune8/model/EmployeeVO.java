@@ -1,11 +1,32 @@
 package com.neptune8.model;
 
-public class EmployeeVO {
+import java.io.Serializable;
+
+public class EmployeeVO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private Integer id;
 	private String firstName;
 	private String lastName;
+	private String email;
+
+	private DepartmentVO department;
+
+	public DepartmentVO getDepartment() {
+		return department;
+	}
+
+	public void setDepartment(DepartmentVO department) {
+		this.department = department;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
 	public Integer getId() {
 		return id;
@@ -33,6 +54,7 @@ public class EmployeeVO {
 
 	@Override
 	public String toString() {
-		return "EmployeeVO{" + "id=" + id + ", firstName='" + firstName + '\'' + ", lastName='" + lastName + '\'' + '}';
+		return "EmployeeVO{" + "id=" + id + ", firstName='" + firstName + '\'' + ", lastName='" + lastName + '\''
+				+ ", email='" + email + '\'' + '}';
 	}
 }
