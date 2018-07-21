@@ -35,8 +35,8 @@ public class EmployeeController {
 
 	// 需要使用工厂方法生成
 	public EmployeeController() {
-		ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
-		validator_303 = validatorFactory.getValidator();
+		//		ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
+		//		validator_303 = validatorFactory.getValidator();
 	}
 
 	@RequestMapping(value = "addNew", method = RequestMethod.GET)
@@ -71,17 +71,17 @@ public class EmployeeController {
 			SessionStatus status, Model model) {
 
 
-		//		validator.validate(employeeVO, result);
-
-		Set<ConstraintViolation<EmployeeVO>> violations = validator_303.validate(employeeVO);
-
-		for (ConstraintViolation<EmployeeVO> violation : violations) {
-			String propertyPath = violation.getPropertyPath().toString();
-			String message = violation.getMessage();
-			// Add JSR-303 errors to BindingResult
-			// This allows Spring to display them in view via a FieldError
-			result.addError(new FieldError("employee", propertyPath, "Invalid " + propertyPath + "(" + message + ")"));
-		}
+		validator.validate(employeeVO, result);
+//
+//		Set<ConstraintViolation<EmployeeVO>> violations = validator_303.validate(employeeVO);
+//
+//		for (ConstraintViolation<EmployeeVO> violation : violations) {
+//			String propertyPath = violation.getPropertyPath().toString();
+//			String message = violation.getMessage();
+//			// Add JSR-303 errors to BindingResult
+//			// This allows Spring to display them in view via a FieldError
+//			result.addError(new FieldError("employee", propertyPath, "Invalid " + propertyPath + "(" + message + ")"));
+//		}
 
 		if (result.hasErrors()) {
 			// 将错误打包到视图

@@ -111,19 +111,19 @@ ModelAttribute修饰的方式将会被先调用，为接下来的视图准备数
 
 一直存在问题，校验器无法由工厂方法生成，网上查询的问题原因是，版本冲突，推荐使用一下版本：
 
-```xml
-        <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
-            <version>1.0.0.GA</version>
-        </dependency>
-         
-            <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-validator</artifactId>
-                <version>4.3.1.Final</version>
-            </dependency>
-```
+    ```xml
+    <dependency>
+        <groupId>javax.validation</groupId>
+        <artifactId>validation-api</artifactId>
+        <version>1.0.0.GA</version>
+    </dependency>
+     
+    <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-validator</artifactId>
+        <version>4.3.1.Final</version>
+    </dependency>
+    ```
 
 然而，我用的就是这个版本，问题依旧：
 
@@ -132,3 +132,54 @@ org.springframework.beans.factory.BeanCreationException: Error creating bean wit
 ```
 
 怎样解决，目前无解，先放一放再去寻找解决方案吧。
+
+### i18n 问题
+
+对于国际化的问题springMVC有对应的解决方案，但是比较复杂，首先想象一下需要几个步骤：
+
+1. 首先要有数据源，就是一种对照表，能够在不同的地区之间进行转换。
+2. 然后需要一个拦截器，检查请求中的location之类的参数，对不同的地区赋予不同的数据。
+3. 最后一步就是将转换之后的数据体现在view中。
+
+
+首先定义数据源：
+
+```xml
+    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+        <property name="basename" value="messages" />
+    </bean>
+```
+
+需要注意的是，还需要在resources目录下定义不同地区的对照表，这样不管在什么地区，对于某个消息来说，都具有了唯一的代码。
+
+然后定义拦截器，和转换器：
+
+```xml
+   <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver">
+       <property name="defaultLocale" value="en" />
+   </bean>
+
+   <bean id="localeChangeInterceptor" class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+       <property name="paramName" value="lang" />
+   </bean>
+
+   <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping">
+       <property name="interceptors">
+           <list>
+               <ref bean="localeChangeInterceptor" />
+           </list>
+       </property>
+   </bean>
+```
+
+对于RequestMappingHandlerMapping来讲，可以定义多个拦截器，实现比如安全认证之类的功能。
+
+最后，我们已经知道了具体的地区，已经去除了对应地区的消息，现在只需要在jsp中体现即可：
+
+注意文件的头部引用：
+
+```jsp
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+```
+具体这个spring有什么用，其实我也不知道，我觉得实际使用jsp还是少吧，所以暂且跳过，就知道他能获取到messageSource的数据即可。
