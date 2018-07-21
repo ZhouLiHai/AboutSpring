@@ -9,13 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/employee-module/")
@@ -23,10 +26,18 @@ import java.util.List;
 public class EmployeeController {
 
 	@Autowired
-	EmployeeManager manager;
+	private EmployeeManager manager;
 
 	@Autowired
-	EmployeeValidator validator;
+	private EmployeeValidator validator;
+
+	private Validator validator_303;
+
+	// 需要使用工厂方法生成
+	public EmployeeController() {
+		ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
+		validator_303 = validatorFactory.getValidator();
+	}
 
 	@RequestMapping(value = "addNew", method = RequestMethod.GET)
 	public String setupForm(Model model) {
@@ -55,11 +66,22 @@ public class EmployeeController {
 		binder.registerCustomEditor(DepartmentVO.class, new DepartmentEditor());
 	}
 
-
 	@RequestMapping(value = "addNew", method = RequestMethod.POST)
 	public String submitForm(@ModelAttribute("employee") EmployeeVO employeeVO, BindingResult result,
 			SessionStatus status, Model model) {
-		validator.validate(employeeVO, result);
+
+
+		//		validator.validate(employeeVO, result);
+
+		Set<ConstraintViolation<EmployeeVO>> violations = validator_303.validate(employeeVO);
+
+		for (ConstraintViolation<EmployeeVO> violation : violations) {
+			String propertyPath = violation.getPropertyPath().toString();
+			String message = violation.getMessage();
+			// Add JSR-303 errors to BindingResult
+			// This allows Spring to display them in view via a FieldError
+			result.addError(new FieldError("employee", propertyPath, "Invalid " + propertyPath + "(" + message + ")"));
+		}
 
 		if (result.hasErrors()) {
 			// 将错误打包到视图
@@ -81,13 +103,12 @@ public class EmployeeController {
 
 	// TODO: ModelAttribute貌似是直接能在模板引擎中使用的数据，不用model.add。
 	@ModelAttribute("allDepartments")
-	public List<DepartmentVO> populateDepartments()
-	{
+	public List<DepartmentVO> populateDepartments() {
 		ArrayList<DepartmentVO> departments = new ArrayList<DepartmentVO>();
-		departments.add(new DepartmentVO(-1,  "Select Department"));
-		departments.add(new DepartmentVO(1,  "Human Resource"));
-		departments.add(new DepartmentVO(2,  "Finance"));
-		departments.add(new DepartmentVO(3,  "Information Technology"));
+		departments.add(new DepartmentVO(-1, "Select Department"));
+		departments.add(new DepartmentVO(1, "Human Resource"));
+		departments.add(new DepartmentVO(2, "Finance"));
+		departments.add(new DepartmentVO(3, "Information Technology"));
 		return departments;
 	}
 

@@ -1,10 +1,12 @@
 package com.neptune8.model;
 
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 public class EmployeeVO implements Serializable {
 	private static final long serialVersionUID = 1L;
 
+	@Size(min = 5, max = 20)
 	private Integer id;
 	private String firstName;
 	private String lastName;
