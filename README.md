@@ -183,3 +183,39 @@ org.springframework.beans.factory.BeanCreationException: Error creating bean wit
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 ```
 具体这个spring有什么用，其实我也不知道，我觉得实际使用jsp还是少吧，所以暂且跳过，就知道他能获取到messageSource的数据即可。
+
+### 拦截器 Interceptor
+
+首先实现 HandlerInterceptor 接口，会有三个接口需要实现：
+
+1. preHandle
+
+预处理回调方法，实现处理器的预处理（如检查登陆），第三个参数为响应的处理器，自定义Controller返回值：true表示继续流程（如调用下一个拦截器或处理器）；false表示流程中断（如登录检查失败），不会继续调用其他的拦截器或处理器，此时我们需要通过response来产生响应；
+
+2. postHandle
+
+后处理回调方法，实现处理器的后处理（但在渲染视图之前），此时我们可以通过modelAndView（模型和视图对象）对模型数据进行处理或对视图进行处理，modelAndView也可能为null。
+
+3. afterCompletion
+
+整个请求处理完毕回调方法，即在视图渲染完毕时回调，如性能监控中我们可以在此记录结束时间并输出消耗时间，还可以进行一些资源清理，类似于try-catch-finally中的finally，但仅调用处理器执行链中
+
+
+有时候我们可能只需要实现三个回调方法中的某一个，如果实现HandlerInterceptor接口的话，三个方法必须实现，不管你需不需要，此时spring提供了一个HandlerInterceptorAdapter适配器（种适配器设计模式的实现），允许我们只实现需要的回调方法。
+
+public abstract class HandlerInterceptorAdapter implements AsyncHandlerInterceptor在abstract类中给出接口的默认实现，接下来想要使用拦截器，只需要继承这个抽象类即可，这时候就体现出了java8接口也能定义函数的好处了，给出接口、并给出接口的默认实现，用户只需要实现接口并覆盖自己感兴趣的方法即可。抽象类的实现方法会导致继承的类只能继承这个抽象类，没办法继承其它的类。
+
+定义好处理的类即可在bean文件中声明这个类的存在，并定义它使用的范围：
+
+```xml
+    <mvc:interceptors>
+        <!--全局拦截器-->
+        <bean class="com.neptune8.Interceptor.DemoInterceptor"></bean>
+
+        <!--特定url的拦截器-->
+        <mvc:interceptor>
+            <mvc:mapping path="/employee-module/getAllEmployees"/>
+            <bean class="com.neptune8.Interceptor.MainPageInterceptor"></bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+```
