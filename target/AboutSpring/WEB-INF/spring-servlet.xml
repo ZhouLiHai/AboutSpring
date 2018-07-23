@@ -3,15 +3,15 @@
        xmlns:aop="http://www.springframework.org/schema/aop"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="
-       http://www.springframework.org/schema/beans
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
        http://www.springframework.org/schema/aop
        http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
        http://www.springframework.org/schema/tx
        http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
        http://www.springframework.org/schema/context
-       http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+       http://www.springframework.org/schema/context/spring-context-3.0.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
     <!--TODO: 以上这些声明得弄明白是怎么回事-->
     <context:component-scan base-package="com.neptune8"/>
@@ -43,5 +43,14 @@
         </property>
     </bean>
 
+    <mvc:interceptors>
+        <!--全局拦截器-->
+        <bean class="com.neptune8.Interceptor.DemoInterceptor"></bean>
 
+        <!--特定url的拦截器-->
+        <mvc:interceptor>
+            <mvc:mapping path="/employee-module/getAllEmployees"/>
+            <bean class="com.neptune8.Interceptor.MainPageInterceptor"></bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
 </beans>
